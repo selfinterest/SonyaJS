@@ -23,9 +23,10 @@ module.exports = function (grunt) {
       watch: {
         scripts: {
           options: {
-            spawn: true
+            spawn: true,
+            atBegin: true
           },
-          files: ['src/*.js', 'src/**/*.js', 'test/unit/**/*.js'],
+          files: ['lib/*.js', 'lib/**/*.js', 'test/unit/**/*.js'],
           tasks: ["test:unit"]
         },
         
