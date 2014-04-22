@@ -38,13 +38,22 @@ describe("sonya module test", function(){
 
         module.type("testType", User);
 
-         expect(module.injectables.testValue).to.be.undefined;
+         expect(module.providers.testValue).to.be.undefined;
         module.value("testValue", "terrence");
-        console.log(module.injectables);
 
-        expect(module.injectables.testValue).to.not.be.undefined;
-        expect(module.injectables.testService).to.not.be.undefined;
-        expect(module.injectables.testFactory).to.not.be.undefined;
-        //module.
+        expect(module.providers.testValue).to.not.be.undefined;
+        expect(module.providers.testService).to.not.be.undefined;
+        expect(module.providers.testFactory).to.not.be.undefined;
+        //chaining
+        module
+            .service("chainedService", function(){
+                return {
+                    name: "Bob"
+                }
+            })
+            .value("chainedValue", "Bob");
+
+        expect(module.providers.chainedService).to.not.be.undefined;
+        expect(module.providers.chainedValue).to.not.be.undefined;
     });
 });
