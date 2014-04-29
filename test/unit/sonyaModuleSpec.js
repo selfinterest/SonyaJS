@@ -56,4 +56,36 @@ describe("sonya module test", function(){
         expect(module.providers.chainedService).to.not.be.undefined;
         expect(module.providers.chainedValue).to.not.be.undefined;
     });
+
+    describe("Module tests with dependencies", function(){
+        it("should be able to create a module that has another module as a dependency, specified as a string", function(){
+           var module1 = new SonyaModule("module1");
+           var module2 = new SonyaModule("module2", ["module1"]);
+           expect(module2.dependencies.length).to.equal(1);
+           expect(module1.dependencies.length).to.equal(0);         //it has no dependencies declared
+           expect(module2.dependencies[0]).to.equal("module1");
+           expect(module1.name).to.equal("module1");
+           expect(module2.name).to.equal("module2");
+        });
+
+        it("should be able to create a module that has another module as a dependency, specified as module object", function(){
+            var module1 = new SonyaModule("module1");
+            var module2 = new SonyaModule("module2", [module1]);
+            expect(module2.dependencies.length).to.equal(1);
+            expect(module1.dependencies.length).to.equal(0);
+            expect(module2.dependencies[0].name).to.equal("module1");               //we get the name by looking at the name property of the object
+        });
+
+        /*it("should be able to create a module that can resolve its own dependencies", function(){
+            //We need to use the actual Sonya module for this
+            
+            Sonya.module("module1");
+            Sonya.module("module2", ["module1"]);
+            
+            //var module1 = new SonyaModule("module1");
+            //var module2 = new SonyaModule("module2", ["module1"]);
+
+            module2.getDependencyMap();
+        });*/
+    });
 });

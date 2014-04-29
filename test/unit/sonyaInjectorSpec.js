@@ -28,4 +28,8 @@ describe("Sonya injector", function(){
         expect(args[0]).to.equal("name");
         expect(args[1]).to.equal("field");
     });
+
+    it("should be able to resolve module dependencies", function(){
+
+    });
 });

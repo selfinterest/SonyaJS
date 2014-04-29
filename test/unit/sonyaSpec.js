@@ -5,7 +5,7 @@ var sinonChai = require("sinon-chai");
 chai.use(sinonChai);
 
 var SonyaModule = require("../../lib/sonya-module.js");
-
+var SonyaValue = require("../../lib/providers/sonya-value.js");
 describe("Sonya -- main module test", function(){
     it("should exist", function(){
         var module = require("../../lib/sonya");
@@ -35,5 +35,33 @@ describe("Sonya -- main module test", function(){
         expect(spy).to.have.been.calledWith("test");
         expect(retrievedModule).to.be.instanceof(SonyaModule);
         expect(module).to.equal(retrievedModule);
+    });
+
+    it("should be able to register modules with dependencies and whatnot", function(){
+        var sonya = require("../../lib/sonya");
+        sonya.module("module1", [])
+            .value("module1value", "test1");
+        sonya.module("module2", ["module1"])
+            .value("module2value", "test2");
+        var module2 = sonya.module("module2");
+        module2.resolveDependencies();
+
+        //module2 should now have two providers, one from each module
+        expect(module2.providers.module1value).to.be.an("object");
+        expect(module2.providers.module2value).to.be.an("object");
+    });
+
+    it("should be able to detect a circular dependency issue in modules", function(){
+        var sonya = require("../../lib/sonya");
+        sonya.module("module1", ["module2"])
+            .value("module1value", "test1");
+        sonya.module("module2", ["module1"])
+            .value("module2value", "test2");
+        var module = sonya.module("module1");
+        expect(function(){
+             module.resolveDependencies();
+         }).to.throw(/Circular dependency/);
+       
+
     });
 });
