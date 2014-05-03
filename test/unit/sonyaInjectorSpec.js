@@ -71,6 +71,35 @@ describe("Sonya injector", function(){
         }, ["module2"]);            //we call in module2, it calls in module1...
     });
 
+    it("should be able to inject dependencies using $inject", function(){
+        var Sonya = require("../../lib/sonya.js");
+        Sonya.module("module1", []).value("n", "name");
+        Sonya.module("module2", ["module1"]).value("p", "position");
+        var fn = function(n, p){
+            expect(n).to.equal("position");         //because we used $inject, n now equals position
+            expect(p).to.equal("name");             //mutatis mutandis for p and name
+        };
+        fn.$inject = ["p", "n"];        //notice we've swapped the order of the dependencies. It now differs from the order of the arguments of function fn
+
+        var sonyaInjector = new SonyaInjector(fn, ["module2"]);
+    });
+
+    it("should be able to inject different kinds of dependencies", function(){
+        var Sonya = require("../../lib/sonya.js");
+        function Car(){
+            expect(this).to.be.instanceof(Car);
+        }
+
+        function fn(car, color){
+            car.color = color;
+            expect(car).to.be.instanceof(Car);
+            expect(color).to.equal("blue");
+        }
+
+        Sonya.module("module1", []).type("car", Car).value("color", "blue");
+        var sonyaInjector = new SonyaInjector(fn, ["module1"]);
+    });
+
 
 
 });
