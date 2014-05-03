@@ -76,6 +76,32 @@ describe("sonya module test", function(){
             expect(module2.dependencies[0].name).to.equal("module1");               //we get the name by looking at the name property of the object
         });
 
+        it("should have a way to iterate over its providers", function(){
+            var module1 = new SonyaModule("module1");
+            var count = 0;
+            function iteratorFn(providerName, provider){
+                if(count  === 0){
+                    expect(providerName).to.equal("test");
+                    expect(provider).to.equal("bob");
+                } else {
+                    expect(providerName).to.equal("test2");
+                    expect(provider).to.equal("jones");
+                }
+                count++;
+            }
+            var spy = sinon.spy(iteratorFn);
+            
+            module1.providers = {
+                "test": "bob",
+                "test2": "jones"
+            };
+
+
+            module1.iterateProviders(spy);
+
+            expect(spy).to.have.been.calledTwice;
+        })
+
         /*it("should be able to create a module that can resolve its own dependencies", function(){
             //We need to use the actual Sonya module for this
             

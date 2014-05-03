@@ -49,6 +49,10 @@ describe("Sonya -- main module test", function(){
         //module2 should now have two providers, one from each module
         expect(module2.providers.module1value).to.be.an("object");
         expect(module2.providers.module2value).to.be.an("object");
+
+        //Check to see if they're REALLY providers
+        expect(module2.providers.module1value.$provide).to.be.a("function");
+        expect(module2.providers.module2value.$provide).to.be.a("function");
     });
 
     it("should be able to detect a circular dependency issue in modules", function(){
@@ -58,10 +62,46 @@ describe("Sonya -- main module test", function(){
         sonya.module("module2", ["module1"])
             .value("module2value", "test2");
         var module = sonya.module("module1");
+        
+
         expect(function(){
              module.resolveDependencies();
          }).to.throw(/Circular dependency/);
        
+        var module2 = sonya.module("module2");
+
+        expect(function(){
+            module2.resolveDependencies();
+        }).to.throw(/Circular dependency/);
+    });
+
+    it("should be able to detect a circular dependency issue in modules (a complicated one)", function(){
+        var sonya = require("../../lib/sonya");
+        sonya.module("module1", ["module2"])
+            .value("module1value", "test1");
+        sonya.module("module2", ["module3"])
+            .value("module2value", "test2");
+        sonya.module("module3", ["module1"])
+            .value("module3value", "test3");  
+
+        var module = sonya.module("module1");
+        expect(function(){
+            module.resolveDependencies();    
+        }).to.throw(/Circular dependency/);
+        
+    });
+
+    it("should be able to do nested layers of dependencies", function(){
+        var sonya = require("../../lib/sonya");
+        var module1 = sonya.module("module1", ["module2"]);
+        
+        var module2 = sonya.module("module2", ["module3"]);
+        var module3 = sonya.module("module3", []);
+        module3.value("module3value", "test3");
+
+        module1.resolveDependencies();
+        expect(module1.providers.module3value).to.be.an("object");
+        expect(module2.providers.module3value).to.be.an("object");
 
     });
 });

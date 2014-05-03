@@ -30,6 +30,47 @@ describe("Sonya injector", function(){
     });
 
     it("should be able to resolve module dependencies", function(){
+        var Sonya = require("../../lib/sonya.js"); 
+        Sonya.module("module1", []);
+        Sonya.module("module2", []);
+        function fn(){
+
+        }
+        SonyaInjector(fn, ["module1", "module2"]);
+    });
+
+    it("should be able to inject dependencies", function(){
+        var Sonya = require("../../lib/sonya.js");
+        var sonyaInjector = new SonyaInjector(function(n, p){
+            expect(n).to.equal("name");
+            expect(p).to.equal("position");
+        }, Sonya.module("test", []).value("n", "name").value("p", "position"));
+    });
+
+    it("should be able to inject dependencies with multiple (independent) modules", function(){
+        var Sonya = require("../../lib/sonya.js");
+        Sonya.module("module1", []).value("n", "name");
+        Sonya.module("module2", []).value("p", "position");
+
+        var sonyaInjector = new SonyaInjector(function(n, p){
+            expect(n).to.equal("name");
+            expect(p).to.equal("position");
+        }, ["module1", "module2"]);
 
     });
+
+    it("should be able to inject dependencies with multiple dependent modules", function(){
+        var Sonya = require("../../lib/sonya.js");
+        Sonya.module("module1", []).value("n", "name");
+        Sonya.module("module2", ["module1"]).value("p", "position");
+
+
+        var sonyaInjector = new SonyaInjector(function(n, p){
+            expect(n).to.equal("name");
+            expect(p).to.equal("position");
+        }, ["module2"]);            //we call in module2, it calls in module1...
+    });
+
+
+
 });
